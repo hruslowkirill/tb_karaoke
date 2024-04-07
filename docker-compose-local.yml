@@ -1,0 +1,15 @@
+version: "3.3"
+services:
+
+  db:
+    image: postgres:12.1-alpine
+    volumes:
+      - pgdata_volume:/var/lib/postgresql/data/
+    ports:
+      - 5437:5432
+    environment:
+      - POSTGRES_DB=karaoke
+      - POSTGRES_USER=karaoke
+      - POSTGRES_PASSWORD=karaokepass
+volumes:
+  pgdata_volume:
