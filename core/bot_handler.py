@@ -1,8 +1,10 @@
 import telebot
 from telebot import types
 
-from core.models import AudioFiles, Tester
+from core.models import AudioFiles, Tester, Mark, Day
+from core.utils import get_today
 
+from django.conf import settings
 
 class BotHandler:
     def __init__(self, bot):
@@ -10,6 +12,8 @@ class BotHandler:
         pass
 
     def handle_start(self, message):
+
+        Day.objects.get_or_create(day=get_today())
 
         tg_id = message.from_user.id
         first_name = message.from_user.first_name
@@ -45,33 +49,77 @@ class BotHandler:
 
 
     def _handle_begin(self, callback):
-        self.bot.send_message(callback.message.chat.id,
-                              f'Ждите файл')
-        audio_file = AudioFiles.objects.all().first()
+        day, created = Day.objects.get_or_create(day=get_today())
 
-        self.bot.send_audio(chat_id=callback.message.chat.id, audio=open(audio_file.file.path, 'rb'))
+        tg_id = callback.from_user.id
+        testers = Tester.objects.filter(tg_id=tg_id)
+        if len(testers) == 0:
+            return
 
-        markup = types.InlineKeyboardMarkup()
-        btn = types.InlineKeyboardButton("1", callback_data='setvalue_1')
-        markup.row(btn)
-        btn = types.InlineKeyboardButton("2", callback_data='setvalue_2')
-        markup.row(btn)
-        btn = types.InlineKeyboardButton("3", callback_data='setvalue_3')
-        markup.row(btn)
-        btn = types.InlineKeyboardButton("4", callback_data='setvalue_4')
-        markup.row(btn)
-        btn = types.InlineKeyboardButton("5", callback_data='setvalue_5')
-        markup.row(btn)
-        self.bot.send_message(callback.message.chat.id,
-                              f'Пожалуйста, поставье оценку',
-                              reply_markup=markup)
+        tester = testers[0]
+        self._send_next_file(callback=callback, tester=tester, day=day)
 
     def _handle_make(self, callback):
         ss = callback.data.split("_")
-        value = int(ss[1])
+        audio_file_id = int(ss[1])
+        value = int(ss[2])
+
+        day, created = Day.objects.get_or_create(day=get_today())
+
+        tg_id = callback.from_user.id
+        testers = Tester.objects.filter(tg_id=tg_id)
+        if len(testers) == 0:
+            return
+
+        tester = testers[0]
+
+        if Mark.objects.filter(tester=tester, audio_id=audio_file_id).count() > 0:
+            self.bot.send_message(callback.message.chat.id,
+                                  f'Вы уже проголосовали за это аудио')
+            return
+
+        mark = Mark(tester=tester, audio_id=audio_file_id, value=value, day=day)
+        mark.save()
 
         self.bot.send_message(callback.message.chat.id,
                               f'Ваша оценка принята')
 
-    def _send_next_file(self):
-        pass
+        self._send_next_file(callback=callback, tester=tester, day=day)
+
+    def _send_next_file(self, callback, tester, day):
+        if Mark.objects.filter(tester=tester, day=day).count() >= settings.DAILY_LIMIT:
+            self.bot.send_message(callback.message.chat.id,
+                                  f'Хватит на сегодня')
+            return
+        latest_mark = Mark.objects.filter(tester=tester, day=day).order_by('-id').first()
+        if latest_mark is None:
+            latest_mark_audio_id = 0
+        else:
+            latest_mark_audio_id=latest_mark.audio.id
+        print("latest_mark_id: "+str(latest_mark_audio_id))
+        next_audio = AudioFiles.objects.filter(id__gt=latest_mark_audio_id, active=True).order_by("id").first()
+
+        if next_audio is None:
+            self.bot.send_message(callback.message.chat.id,
+                                  f'Аудио файлы закончились! Спасибо')
+            return
+
+        self.bot.send_message(callback.message.chat.id,
+                              f'Ждите файл')
+
+        self.bot.send_audio(chat_id=callback.message.chat.id, audio=open(next_audio.file.path, 'rb'))
+
+        markup = types.InlineKeyboardMarkup()
+        btn = types.InlineKeyboardButton("1", callback_data='setvalue_' + str(next_audio.id) + '_1')
+        markup.row(btn)
+        btn = types.InlineKeyboardButton("2", callback_data='setvalue_' + str(next_audio.id) + '_2')
+        markup.row(btn)
+        btn = types.InlineKeyboardButton("3", callback_data='setvalue_' + str(next_audio.id) + '_3')
+        markup.row(btn)
+        btn = types.InlineKeyboardButton("4", callback_data='setvalue_' + str(next_audio.id) + '_4')
+        markup.row(btn)
+        btn = types.InlineKeyboardButton("5", callback_data='setvalue_' + str(next_audio.id) + '_5')
+        markup.row(btn)
+        self.bot.send_message(callback.message.chat.id,
+                              f'Пожалуйста, поставье оценку',
+                              reply_markup=markup)

@@ -1,0 +1,34 @@
+version: "3.8"
+services:
+
+  app:
+    build:
+      context: .
+      dockerfile: app.dockerfile
+    command: ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+
+
+  bot:
+    build:
+      context: .
+      dockerfile: app.dockerfile
+    command: ["python3","manage.py","start_bot"]
+    depends_on:
+      - db
+
+  db:
+    image: postgres:12.1-alpine
+    volumes:
+      - pgdata_volume:/var/lib/postgresql/data/
+    ports:
+      - 5437:5432
+    environment:
+      - POSTGRES_DB=karaoke
+      - POSTGRES_USER=karaoke
+      - POSTGRES_PASSWORD=karaokepass
+volumes:
+  pgdata_volume:

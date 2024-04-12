@@ -16,7 +16,7 @@ def start(message):
     try:
         bot_handler.handle_start(message)
     except Exception as exception:
-        print("Exception occured: " + exception)
+        print("Exception occured: " + str(exception))
 
 @bot.callback_query_handler(func=lambda callback: True)
 def main(callback):
@@ -25,7 +25,7 @@ def main(callback):
     try:
         bot_handler.handle_main(callback)
     except Exception as exception:
-        print("Exception occured: " + exception)
+        print("Exception occured: " + str(exception))
 
 class Command(BaseCommand):
 
