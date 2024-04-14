@@ -34,7 +34,7 @@ TG_BOT = os.getenv("TG_BOT")
 ALLOWED_HOSTS = ["*"]
 
 
-DAILY_LIMIT = 3
+DAILY_LIMIT = os.getenv("DAILY_LIMIT")
 
 # Application definition
 
