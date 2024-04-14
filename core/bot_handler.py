@@ -91,7 +91,7 @@ class BotHandler:
             self.bot.send_message(callback.message.chat.id,
                                   f'Хватит на сегодня')
             return
-        latest_mark = Mark.objects.filter(tester=tester, day=day).order_by('-id').first()
+        latest_mark = Mark.objects.filter(tester=tester).order_by('-id').first()
         if latest_mark is None:
             latest_mark_audio_id = 0
         else:
