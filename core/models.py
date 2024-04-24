@@ -14,6 +14,7 @@ class AudioFiles(TimeStampedModel):
     name =  models.CharField(max_length=64)
     active = models.BooleanField()
     file = models.FileField(upload_to ='media/uploads/')
+    block = models.PositiveSmallIntegerField(default=0)
 
     def __str__(self):
         return os.path.basename(self.file.name)
@@ -40,6 +41,7 @@ class Day(TimeStampedModel):
         ordering = ["-created"]
 
     day = models.CharField(max_length=16)
+    block = models.PositiveSmallIntegerField(default=0)
 
     def __str__(self):
         return self.day

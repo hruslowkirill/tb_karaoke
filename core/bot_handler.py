@@ -13,7 +13,12 @@ class BotHandler:
 
     def handle_start(self, message):
 
-        Day.objects.get_or_create(day=get_today())
+        day, created = Day.objects.get_or_create(day=get_today())
+        if created:
+            max_day = Day.objects.all().order_by("-block")[0]
+            new_block = max_day.block+1
+            day.block = new_block
+            day.save()
 
         tg_id = message.from_user.id
         first_name = message.from_user.first_name
@@ -87,7 +92,7 @@ class BotHandler:
         self._send_next_file(callback=callback, tester=tester, day=day)
 
     def _send_next_file(self, callback, tester, day):
-        if Mark.objects.filter(tester=tester, day=day).count() >= settings.DAILY_LIMIT:
+        if Mark.objects.filter(tester=tester, day=day).count() >= AudioFiles.objects.filter(block=day.block).count():
             self.bot.send_message(callback.message.chat.id,
                                   f'Хватит на сегодня')
             return

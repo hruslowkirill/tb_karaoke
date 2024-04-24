@@ -12,6 +12,23 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         audio_path = options["audio_path"]
 
+        for folder in glob.glob(os.path.join(audio_path, "*")):
+            print(folder)
+            folder_name = os.path.basename(folder)
+            block_num = int(folder_name.replace("block", ""))
+            for file in glob.glob(os.path.join(folder, "*.mp3")):
+                print(file)
+                file_name = os.path.basename(file)
+                audio = AudioFiles()
+                audio.name = file_name
+                audio.active = True
+                audio.block = block_num
+                with open(file, 'rb') as ff:
+                    audio.file.save(file_name, File(ff), save=True)
+                    # print(ff)
+                    # content = ff.read()
+                audio.save()
+        """
         for file in glob.glob(os.path.join(audio_path, "*.mp3")):
             print(file)
             file_name = os.path.basename(file)
@@ -24,3 +41,4 @@ class Command(BaseCommand):
                 #content = ff.read()
             audio.save()
             #audio.file.save(file_name, content)
+        """

@@ -6,7 +6,7 @@ from core.models import AudioFiles, Tester, Mark, Day
 
 @admin.register(AudioFiles)
 class AudioFilesAdmin(admin.ModelAdmin):
-    list_display = ["created", "modified", "active", "name"]
+    list_display = ["created", "modified", "active", "name", "block"]
 
 @admin.register(Tester)
 class TesterAdmin(admin.ModelAdmin):
@@ -18,4 +18,4 @@ class MarkAdmin(admin.ModelAdmin):
 
 @admin.register(Day)
 class DayAdmin(admin.ModelAdmin):
-    list_display = ["created", "day"]
+    list_display = ["created", "day", "block"]
