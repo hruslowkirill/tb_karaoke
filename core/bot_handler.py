@@ -154,7 +154,7 @@ class BotHandler:
         else:
             latest_mark_audio_id=latest_mark.audio.id
         print("latest_mark_id: "+str(latest_mark_audio_id))
-        next_audio = AudioFiles.objects.filter(id__gt=latest_mark_audio_id, active=True).order_by("name").first()
+        next_audio = AudioFiles.objects.filter(id__gt=latest_mark_audio_id, block=day.block, active=True).order_by("name").first()
 
         if next_audio is None:
             self.bot.send_message(callback.message.chat.id,

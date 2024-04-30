@@ -16,7 +16,7 @@ class Command(BaseCommand):
             print(folder)
             folder_name = os.path.basename(folder)
             block_num = int(folder_name.replace("block", ""))
-            for file in glob.glob(os.path.join(folder, "*.mp3")):
+            for file in sorted(glob.glob(os.path.join(folder, "*.mp3"))):
                 print(file)
                 file_name = os.path.basename(file)
                 audio = AudioFiles()
