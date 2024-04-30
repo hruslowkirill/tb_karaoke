@@ -18,6 +18,15 @@ def start(message):
     except Exception as exception:
         print("Exception occured: " + str(exception))
 
+@bot.message_handler(content_types=['text'])
+def after_text(message):
+    bot_handler.handle_text(message)
+...
+
+
+def after_text_2(message):
+   print('введённый пользователем номер телефона на шаге "смс":', message.text)
+
 @bot.callback_query_handler(func=lambda callback: True)
 def main(callback):
     print("callback")
@@ -30,4 +39,9 @@ def main(callback):
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        bot.polling(none_stop=True)
+        while True:
+            try:
+                bot.polling(none_stop=True)
+            except Exception as ex:
+                print(ex)
+                time.sleep(10)

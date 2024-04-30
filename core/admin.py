@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from core.models import AudioFiles, Tester, Mark, Day
+from core.models import AudioFiles, Tester, Mark, Day, ApplicationQuestion, ApplicationAnswer
 
 
 @admin.register(AudioFiles)
@@ -19,3 +19,11 @@ class MarkAdmin(admin.ModelAdmin):
 @admin.register(Day)
 class DayAdmin(admin.ModelAdmin):
     list_display = ["created", "day", "block"]
+
+@admin.register(ApplicationQuestion)
+class ApplicationQuestionAdmin(admin.ModelAdmin):
+    list_display = ["created", "n", "text"]
+
+@admin.register(ApplicationAnswer)
+class ApplicationAnswerAdmin(admin.ModelAdmin):
+    list_display = ["created", "text", "application_questions"]

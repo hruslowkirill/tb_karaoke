@@ -1,7 +1,7 @@
 import telebot
 from telebot import types
 
-from core.models import AudioFiles, Tester, Mark, Day
+from core.models import AudioFiles, Tester, Mark, Day, ApplicationQuestion, ApplicationAnswer
 from core.utils import get_today
 
 from django.conf import settings
@@ -46,11 +46,21 @@ class BotHandler:
                               f'Привет, '+tester.first_name+',добро пожаловать в этот прекрасный бот',
                               reply_markup=markup)
 
+    def handle_text(self, message):
+        tg_id = message.from_user.id
+        testers = Tester.objects.filter(tg_id=tg_id)
+        tester = testers[0]
+        tester.name = message.text
+        tester.save()
+        self._go_to_application(chat_id=message.chat.id, tester=tester)
+
     def handle_main(self, callback):
         if callback.data == 'begin':
             self._handle_begin(callback)
         elif callback.data.startswith("setvalue_"):
             self._handle_make(callback)
+        elif callback.data.startswith("subanswer_"):
+            self._handle_sub_answer(callback)
 
 
     def _handle_begin(self, callback):
@@ -62,7 +72,48 @@ class BotHandler:
             return
 
         tester = testers[0]
-        self._send_next_file(callback=callback, tester=tester, day=day)
+
+        if tester.last_question < ApplicationQuestion.objects.all().count():
+            self._go_to_application(chat_id=callback.message.chat.id, tester=tester)
+        else:
+            self._send_next_file(callback=callback, tester=tester, day=day)
+
+    def _handle_sub_answer(self, callback):
+        ss = callback.data.split("_")
+        question_id = int(ss[1])
+        answer_id = int(ss[2])
+
+        tg_id = callback.from_user.id
+        testers = Tester.objects.filter(tg_id=tg_id)
+        if len(testers) == 0:
+            return
+        tester = testers[0]
+
+        tester.answers.add(ApplicationAnswer.objects.get(id=answer_id))
+        tester.last_question = ApplicationQuestion.objects.get(id=question_id).n
+        tester.save()
+
+        if tester.last_question < ApplicationQuestion.objects.all().count():
+            self._go_to_application(chat_id=callback.message.chat.id, tester=tester)
+        else:
+            day, created = Day.objects.get_or_create(day=get_today())
+            self._send_next_file(callback=callback, tester=tester, day=day)
+
+    def _go_to_application(self, chat_id, tester):
+        if tester.name is None:
+            self.bot.send_message(chat_id,
+                                  "Ваше имя")
+            return
+        next_question = ApplicationQuestion.objects.get(n=tester.last_question+1)
+
+        markup = types.InlineKeyboardMarkup()
+        answers = ApplicationAnswer.objects.filter(application_questions=next_question).order_by("id")
+        for a in answers:
+            btn = types.InlineKeyboardButton(a.text, callback_data='subanswer_' + str(next_question.id)+"_"+str(a.id))
+            markup.row(btn)
+
+        self.bot.send_message(chat_id,
+                              next_question.text, reply_markup=markup)
 
     def _handle_make(self, callback):
         ss = callback.data.split("_")
@@ -92,6 +143,7 @@ class BotHandler:
         self._send_next_file(callback=callback, tester=tester, day=day)
 
     def _send_next_file(self, callback, tester, day):
+        print("_send_next_file")
         if Mark.objects.filter(tester=tester, day=day).count() >= AudioFiles.objects.filter(block=day.block).count():
             self.bot.send_message(callback.message.chat.id,
                                   f'Хватит на сегодня')
@@ -102,7 +154,7 @@ class BotHandler:
         else:
             latest_mark_audio_id=latest_mark.audio.id
         print("latest_mark_id: "+str(latest_mark_audio_id))
-        next_audio = AudioFiles.objects.filter(id__gt=latest_mark_audio_id, active=True).order_by("id").first()
+        next_audio = AudioFiles.objects.filter(id__gt=latest_mark_audio_id, active=True).order_by("name").first()
 
         if next_audio is None:
             self.bot.send_message(callback.message.chat.id,
