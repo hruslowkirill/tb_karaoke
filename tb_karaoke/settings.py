@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core'
+    'core',
+    'django_celery_beat'
 ]
 
 MIDDLEWARE = [
@@ -92,6 +93,22 @@ DATABASES = {
         "PORT": os.getenv("DB_PORT"),
     }
 }
+
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+REDIS_PORT = os.getenv("REDIS_PORT", "6385")
+REDIS_DB = os.getenv("REDIS_DB", "0")
+REDIS_URL = "redis://{host}:{port}/{db}".format(
+    host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB
+)
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+
+CELERY_TASK_DEFAULT_QUEUE = "typi_queue"
+CELERY_IGNORE_RESULT = True
 
 
 # Password validation

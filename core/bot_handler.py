@@ -6,6 +6,18 @@ from core.utils import get_today
 
 from django.conf import settings
 
+introduction_text = """
+Здравствуйте! Мы благодарим вас за согласие участвовать в нашем исследовании. Наша компания исследует, как слушатели воспринимают пение не профессиональных исполнителей. Ежедневно в течение 10 дней вы будете получать по 30 записей песен, и вам нужно будет оценить их пение по пятибалльной шкале. Всего будет 300 треков.
+При оценке исполнителей придерживайтесь следующей системы:
+    • 5 — Отлично, вам ОЧЕНЬ понравилось;
+    • 4 — Хорошо, вам понравилось, исполнитель хорошо поет;
+    • 3 — Удовлетворительно, исполнитель поет средне, не плохо, но и не отлично;
+    • 2 — Плохо, вам не понравилось, исполнитель поет плохо;
+    • 1 — Очень плохо, исполнение крайне не понравилось.
+Исполнители — это обычные люди, не связанные с профессиональным пением. Представьте, что это поют ваши знакомые, друзья, люди, которые вас окружают.
+Важно: не сравнивайте исполнения между собой. Исполнители выбраны случайным образом, оценки могут быть как все разные, так и все одинаковые. Полагайтесь только на свои ощущения.
+"""
+
 class BotHandler:
     def __init__(self, bot):
         self.bot = bot
@@ -13,12 +25,11 @@ class BotHandler:
 
     def handle_start(self, message):
 
-        day, created = Day.objects.get_or_create(day=get_today())
-        if created:
-            max_day = Day.objects.all().order_by("-block")[0]
-            new_block = max_day.block+1
-            day.block = new_block
-            day.save()
+        days = Day.objects.filter(day=get_today())
+        if len(days) == 0:
+            self.bot.send_message(message.chat.id, "Подождите, опрос еще не начался")
+            return
+        day = days[0]
 
         tg_id = message.from_user.id
         first_name = message.from_user.first_name
@@ -43,7 +54,7 @@ class BotHandler:
         markup.row(begin_button)
 
         self.bot.send_message(message.chat.id,
-                              f'Привет, '+tester.first_name+',добро пожаловать в этот прекрасный бот',
+                              introduction_text,
                               reply_markup=markup)
 
     def handle_text(self, message):
@@ -64,7 +75,11 @@ class BotHandler:
 
 
     def _handle_begin(self, callback):
-        day, created = Day.objects.get_or_create(day=get_today())
+        days = Day.objects.filter(day=get_today())
+        if len(days) == 0:
+            self.bot.send_message(callback.message.chat.id, "Подождите, опрос еще не начался")
+            return
+        day = days[0]
 
         tg_id = callback.from_user.id
         testers = Tester.objects.filter(tg_id=tg_id)
@@ -74,6 +89,7 @@ class BotHandler:
         tester = testers[0]
 
         if tester.last_question < ApplicationQuestion.objects.all().count():
+            self.bot.send_message(callback.message.chat.id, "Заполните пожалуйста анкету")
             self._go_to_application(chat_id=callback.message.chat.id, tester=tester)
         else:
             self._send_next_file(callback=callback, tester=tester, day=day)
@@ -96,7 +112,7 @@ class BotHandler:
         if tester.last_question < ApplicationQuestion.objects.all().count():
             self._go_to_application(chat_id=callback.message.chat.id, tester=tester)
         else:
-            day, created = Day.objects.get_or_create(day=get_today())
+            day = Day.objects.get(day=get_today())
             self._send_next_file(callback=callback, tester=tester, day=day)
 
     def _go_to_application(self, chat_id, tester):
@@ -120,7 +136,11 @@ class BotHandler:
         audio_file_id = int(ss[1])
         value = int(ss[2])
 
-        day, created = Day.objects.get_or_create(day=get_today())
+        days = Day.objects.filter(day=get_today())
+        if len(days) == 0:
+            self.bot.send_message(callback.message.chat.id, "Подождите, опрос еще не начался")
+            return
+        day = days[0]
 
         tg_id = callback.from_user.id
         testers = Tester.objects.filter(tg_id=tg_id)

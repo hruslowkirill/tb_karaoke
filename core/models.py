@@ -57,7 +57,7 @@ class Tester(TimeStampedModel):
     last_question = models.PositiveSmallIntegerField(default=0)
 
     def __str__(self):
-        return self.username
+        return str(self.username)
 
 
 class Day(TimeStampedModel):
