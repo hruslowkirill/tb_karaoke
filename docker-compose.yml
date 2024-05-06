@@ -13,6 +13,7 @@ services:
       - /home/talgat/tg_bot/media:/app/media
     depends_on:
       - db
+      - redis
 
   celery-worker:
     build:
@@ -20,15 +21,15 @@ services:
       dockerfile: app.dockerfile
     command: ["celery", "-A", "tb_karaoke", "worker", "--loglevel=info"]
     depends_on:
-      - db
-      -
+      - app
+
   celery-beat:
     build:
       context: .
       dockerfile: app.dockerfile
     command: ["celery", "-A", "tb_karaoke", "beat", "-l", "INFO", "--scheduler", "django_celery_beat.schedulers:DatabaseScheduler"]
     depends_on:
-      - db
+      - app
 
   bot:
     build:
@@ -50,5 +51,11 @@ services:
       - POSTGRES_DB=karaoke
       - POSTGRES_USER=karaoke
       - POSTGRES_PASSWORD=karaokepass
+  
+  redis:
+    restart: always
+    image: redis:latest
+    ports:
+      - 6385:6379
 volumes:
   pgdata_volume:
