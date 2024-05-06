@@ -10,6 +10,7 @@ from core.bot_handler import BotHandler
 bot = telebot.TeleBot(settings.TG_BOT)
 bot_handler = BotHandler(bot)
 
+
 @bot.message_handler(commands=['start'])
 def start(message):
     print(message.chat.id)
@@ -21,7 +22,6 @@ def start(message):
 @bot.message_handler(content_types=['text'])
 def after_text(message):
     bot_handler.handle_text(message)
-...
 
 
 def after_text_2(message):
