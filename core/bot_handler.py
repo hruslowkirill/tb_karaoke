@@ -44,7 +44,7 @@ class BotHandler:
 
         testers = Tester.objects.filter(tg_id=tg_id)
         if len(testers)==0:
-            tester = Tester(tg_id=tg_id, first_name=first_name, last_name=last_name, username=username)
+            tester = Tester(tg_id=tg_id, first_name=first_name, last_name=last_name, username=username, chat_id=message.chat.id)
             tester.save()
         else:
             tester = testers[0]

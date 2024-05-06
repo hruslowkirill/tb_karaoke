@@ -55,6 +55,7 @@ class Tester(TimeStampedModel):
     tg_id = models.PositiveBigIntegerField()
     answers = models.ManyToManyField(ApplicationAnswer)
     last_question = models.PositiveSmallIntegerField(default=0)
+    chat_id = models.CharField(max_length=32, default=0)
 
     def __str__(self):
         return str(self.username)

@@ -107,9 +107,10 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 
-CELERY_TASK_DEFAULT_QUEUE = "typi_queue"
 CELERY_IGNORE_RESULT = True
+CELERY_BEAT_SCHEDULER='django_celery_beat.schedulers:DatabaseScheduler'
 
+CELERY_TIMEZONE = 'Asia/Almaty'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
