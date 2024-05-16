@@ -110,7 +110,7 @@ CELERY_RESULT_SERIALIZER = "json"
 CELERY_IGNORE_RESULT = True
 CELERY_BEAT_SCHEDULER='django_celery_beat.schedulers:DatabaseScheduler'
 
-CELERY_TIMEZONE = 'Asia/Almaty'
+#CELERY_TIMEZONE = 'Asia/Yekaterinburg'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -136,7 +136,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Asia/Almaty'
+TIME_ZONE = 'Asia/Yekaterinburg'
 
 USE_I18N = True
 

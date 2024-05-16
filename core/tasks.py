@@ -1,7 +1,8 @@
 import telebot
+from telebot import types
 from celery import shared_task
 from django.conf import settings
-from core.models import Day
+from core.models import Day, Tester
 from core.utils import get_today
 
 @shared_task
@@ -16,12 +17,16 @@ def start_new_day():
     day.block = block
     day.save()
 
-@shared_task
-def send_message():
     bot = telebot.TeleBot(settings.TG_BOT)
-    bot.send_message(265757675,
-                          f'Haha')
+
+    testers = Tester.objects.all()
+    for tester in testers:
+        markup = types.InlineKeyboardMarkup()
+        begin_button = types.InlineKeyboardButton('Начать', callback_data='begin')
+        markup.row(begin_button)
+        bot.send_message(tester.chat_id,
+                         f'Сегодня '+str(block)+' день оценки. Для вас подготовлено 30 исполнителей', reply_markup=markup)
 
 @shared_task
-def print_celery():
-    print("YESSS!")
+def test_tasks():
+    print("test_tasks")

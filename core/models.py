@@ -15,6 +15,7 @@ class AudioFiles(TimeStampedModel):
     active = models.BooleanField()
     file = models.FileField(upload_to ='media/uploads/')
     block = models.PositiveSmallIntegerField(default=0)
+    number = models.PositiveSmallIntegerField(default=0)
 
     def __str__(self):
         return os.path.basename(self.file.name)

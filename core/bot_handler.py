@@ -17,6 +17,19 @@ introduction_text = """
 Исполнители — это обычные люди, не связанные с профессиональным пением. Представьте, что это поют ваши знакомые, друзья, люди, которые вас окружают.
 Важно: не сравнивайте исполнения между собой. Исполнители выбраны случайным образом, оценки могут быть как все разные, так и все одинаковые. Полагайтесь только на свои ощущения.
 """
+introduction_text2 = """
+При оценке исполнителей придерживайтесь следующей системы:
+    • 5 — Отлично, вам ОЧЕНЬ понравилось;
+    • 4 — Хорошо, вам понравилось, исполнитель хорошо поет;
+    • 3 — Удовлетворительно, исполнитель поет средне, не плохо, но и не отлично;
+    • 2 — Плохо, вам не понравилось, исполнитель поет плохо;
+    • 1 — Очень плохо, исполнение крайне не понравилось.
+Исполнители — это обычные люди, не связанные с профессиональным пением. Представьте, что это поют ваши знакомые, друзья, люди, которые вас окружают.
+Важно: не сравнивайте исполнения между собой. Исполнители выбраны случайным образом, оценки могут быть как все разные, так и все одинаковые. Полагайтесь только на свои ощущения.
+"""
+
+def send_new_day_message(bot, chat_id, block):
+    bot.send_message(chat_id, f'Сегодня ' + str(block) + ' день оценки. Для вас подготовлено 30 исполнителей ' + introduction_text2)
 
 class BotHandler:
     def __init__(self, bot):
@@ -113,6 +126,7 @@ class BotHandler:
             self._go_to_application(chat_id=callback.message.chat.id, tester=tester)
         else:
             day = Day.objects.get(day=get_today())
+            send_new_day_message(self.bot, tester.chat_id, day.block)
             self._send_next_file(callback=callback, tester=tester, day=day)
 
     def _go_to_application(self, chat_id, tester):
@@ -198,5 +212,5 @@ class BotHandler:
         btn = types.InlineKeyboardButton("5", callback_data='setvalue_' + str(next_audio.id) + '_5')
         markup.row(btn)
         self.bot.send_message(callback.message.chat.id,
-                              f'Пожалуйста, поставье оценку',
+                              f'Пожалуйста, поставье оценку. День '+str(day.block)+', исполнитель '+str(next_audio.number),
                               reply_markup=markup)

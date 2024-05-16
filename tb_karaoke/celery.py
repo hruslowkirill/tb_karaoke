@@ -12,5 +12,5 @@ app = Celery("tb_karaoke")
 # Using a string here means the worker will not have to
 # pickle the object when using Windows.
 app.config_from_object("django.conf:settings", namespace="CELERY")
-app.conf.timezone = 'Asia/Almaty'
+#app.conf.timezone = 'Asia/Yekaterinburg'
 app.autodiscover_tasks()

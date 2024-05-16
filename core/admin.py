@@ -11,7 +11,7 @@ from openpyxl import Workbook
 
 @admin.register(AudioFiles)
 class AudioFilesAdmin(admin.ModelAdmin):
-    list_display = ["created", "modified", "active", "name", "block"]
+    list_display = ["created", "modified", "active", "name", "block", "number"]
 
 @admin.register(Tester)
 class TesterAdmin(admin.ModelAdmin):

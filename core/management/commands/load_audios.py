@@ -16,6 +16,7 @@ class Command(BaseCommand):
             print(folder)
             folder_name = os.path.basename(folder)
             block_num = int(folder_name.replace("block", ""))
+            nnn = 0
             for file in sorted(glob.glob(os.path.join(folder, "*.mp3"))):
                 print(file)
                 file_name = os.path.basename(file)
@@ -23,6 +24,8 @@ class Command(BaseCommand):
                 audio.name = file_name
                 audio.active = True
                 audio.block = block_num
+                nnn += 1
+                audio.number = nnn
                 with open(file, 'rb') as ff:
                     audio.file.save(file_name, File(ff), save=True)
                     # print(ff)
