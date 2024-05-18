@@ -66,9 +66,10 @@ class BotHandler:
         tg_id = message.from_user.id
         testers = Tester.objects.filter(tg_id=tg_id)
         tester = testers[0]
-        tester.name = message.text
-        tester.save()
-        self._go_to_application(chat_id=message.chat.id, tester=tester)
+        if tester.name is None:
+            tester.name = message.text
+            tester.save()
+            self._go_to_application(chat_id=message.chat.id, tester=tester)
 
     def handle_main(self, callback):
         if callback.data == 'begin':
@@ -105,10 +106,19 @@ class BotHandler:
         answer_id = int(ss[2])
 
         tg_id = callback.from_user.id
-        testers = Tester.objects.filter(tg_id=tg_id)
+        testers = Tester.objects.filter(tg_id=tg_id).prefetch_related("answers")
         if len(testers) == 0:
             return
         tester = testers[0]
+
+        if len(tester.answers.filter(application_questions__id=question_id))>0:
+            self.bot.send_message(callback.message.chat.id, "Вы уже ответили на этот вопрос")
+            return
+
+        #for an in tester.answers.all():
+        #    if an.application_questions.id == question_id:
+        #        self.bot.send_message(callback.message.chat.id, "Вы уже ответили на этот вопрос")
+        #        return
 
         tester.answers.add(ApplicationAnswer.objects.get(id=answer_id))
         tester.last_question = ApplicationQuestion.objects.get(id=question_id).n
