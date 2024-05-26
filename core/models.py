@@ -57,22 +57,10 @@ class Tester(TimeStampedModel):
     answers = models.ManyToManyField(ApplicationAnswer)
     last_question = models.PositiveSmallIntegerField(default=0)
     chat_id = models.CharField(max_length=32, default=0)
+    current_block = models.IntegerField(default=1)
 
     def __str__(self):
         return str(self.username)
-
-
-class Day(TimeStampedModel):
-    class Meta:
-        verbose_name = "Дата"
-        verbose_name_plural = "Даты"
-        ordering = ["-created"]
-
-    day = models.CharField(max_length=16)
-    block = models.PositiveSmallIntegerField(default=0)
-
-    def __str__(self):
-        return self.day
 
 
 class Mark(TimeStampedModel):
@@ -83,6 +71,5 @@ class Mark(TimeStampedModel):
 
     tester = models.ForeignKey(Tester, null=False, on_delete=models.RESTRICT, related_name="marks")
     audio = models.ForeignKey(AudioFiles, null=False, on_delete=models.RESTRICT, related_name="marks")
-    day = models.ForeignKey(Day, null=False, on_delete=models.RESTRICT, related_name="marks")
     value = models.PositiveSmallIntegerField()
 

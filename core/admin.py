@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 
-from core.models import AudioFiles, Tester, Mark, Day, ApplicationQuestion, ApplicationAnswer
+from core.models import AudioFiles, Tester, Mark, ApplicationQuestion, ApplicationAnswer
 
 from openpyxl import Workbook
 
@@ -15,7 +15,7 @@ class AudioFilesAdmin(admin.ModelAdmin):
 
 @admin.register(Tester)
 class TesterAdmin(admin.ModelAdmin):
-    list_display = ["created", "tg_id", "first_name", "last_name", "username"]
+    list_display = ["created", "tg_id", "first_name", "last_name", "username", "current_block"]
 
     actions = ("save_to_excel",)
 
@@ -69,11 +69,8 @@ class TesterAdmin(admin.ModelAdmin):
 
 @admin.register(Mark)
 class MarkAdmin(admin.ModelAdmin):
-    list_display = ["created", "tester", "audio", "day", "value"]
+    list_display = ["created", "tester", "audio", "value"]
 
-@admin.register(Day)
-class DayAdmin(admin.ModelAdmin):
-    list_display = ["created", "day", "block"]
 
 @admin.register(ApplicationQuestion)
 class ApplicationQuestionAdmin(admin.ModelAdmin):

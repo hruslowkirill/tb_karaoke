@@ -1,27 +1,29 @@
 import telebot
 from telebot import types
 
-from core.models import AudioFiles, Tester, Mark, Day, ApplicationQuestion, ApplicationAnswer
-from core.utils import get_today
+from core.models import AudioFiles, Tester, Mark, ApplicationQuestion, ApplicationAnswer
 
 from django.conf import settings
 
 introduction_text = """
-Здравствуйте! Мы благодарим вас за согласие участвовать в нашем исследовании. Наша компания исследует, как слушатели воспринимают пение не профессиональных исполнителей. Ежедневно в течение 10 дней вы будете получать по 30 записей песен, и вам нужно будет оценить их пение по пятибалльной шкале. Всего будет 300 треков.
+Здравствуйте! Мы благодарим вас за согласие участвовать в нашем исследовании. Наша компания исследует, как слушатели воспринимают пение не профессиональных исполнителей. 
+\nЕжедневно в течение 10 дней вы будете получать по 30 записей песен, и вам нужно будет оценить их пение по пятибалльной шкале. Всего будет 300 треков.
+\n
+Заполните, пожалуйста, анкету
 """
 introduction_text2 = """
 При оценке исполнителей придерживайтесь следующей системы:
-    • 5 — Отлично, вам ОЧЕНЬ понравилось;
-    • 4 — Хорошо, вам понравилось, исполнитель хорошо поет;
-    • 3 — Удовлетворительно, исполнитель поет средне, не плохо, но и не отлично;
-    • 2 — Плохо, вам не понравилось, исполнитель поет плохо;
-    • 1 — Очень плохо, исполнение крайне не понравилось.\n
-Исполнители — это обычные люди, не связанные с профессиональным пением. Представьте, что это поют ваши знакомые, друзья, люди, которые вас окружают.
-Важно: не сравнивайте исполнения между собой. Исполнители выбраны случайным образом, оценки могут быть как все разные, так и все одинаковые. Полагайтесь только на свои ощущения.
+    • 5 — *Отлично*. Вам ОЧЕНЬ понравилось;
+    • 4 — *Хорошо*. Вам понравилось, исполнитель хорошо поет;
+    • 3 — *Удовлетворительно*. Исполнитель поет средне;
+    • 2 — *Плохо*. Вам не понравилось, исполнитель поет плохо;
+    • 1 — *Очень Плохо*. Исполнение крайне не понравилось.\n
+*Внимание*! Исполнители — это обычные люди, не связанные с профессиональным пением. Представьте, что это поют ваши знакомые, друзья, люди, которые вас окружают.\n
+*Важно*: не сравнивайте исполнения между собой. Исполнители выбраны случайным образом, оценки могут быть как все разные, так и все одинаковые. Полагайтесь только на свои ощущения.
 """
 
 def send_new_day_message(bot, chat_id, block):
-    bot.send_message(chat_id, f'Сегодня ' + str(block) + ' день оценки. Для вас подготовлено 30 исполнителей\n' + introduction_text2)
+    bot.send_message(chat_id, f'Сегодня ' + str(block) + ' день оценки. Для вас подготовлено 30 исполнителей\n' + introduction_text2, parse_mode="Markdown")
 
 class BotHandler:
     def __init__(self, bot):
@@ -29,13 +31,6 @@ class BotHandler:
         pass
 
     def handle_start(self, message):
-
-        days = Day.objects.filter(day=get_today())
-        if len(days) == 0:
-            self.bot.send_message(message.chat.id, "Подождите, опрос еще не начался")
-            return
-        day = days[0]
-
         tg_id = message.from_user.id
         first_name = message.from_user.first_name
         last_name = message.from_user.last_name
@@ -60,7 +55,7 @@ class BotHandler:
 
         self.bot.send_message(message.chat.id,
                               introduction_text,
-                              reply_markup=markup)
+                              reply_markup=markup, parse_mode="Markdown")
 
     def handle_text(self, message):
         tg_id = message.from_user.id
@@ -81,11 +76,6 @@ class BotHandler:
 
 
     def _handle_begin(self, callback):
-        days = Day.objects.filter(day=get_today())
-        if len(days) == 0:
-            self.bot.send_message(callback.message.chat.id, "Подождите, опрос еще не начался")
-            return
-        day = days[0]
 
         tg_id = callback.from_user.id
         testers = Tester.objects.filter(tg_id=tg_id)
@@ -98,7 +88,7 @@ class BotHandler:
             self.bot.send_message(callback.message.chat.id, "Заполните пожалуйста анкету")
             self._go_to_application(chat_id=callback.message.chat.id, tester=tester)
         else:
-            self._send_next_file(callback=callback, tester=tester, day=day)
+            self._send_next_file(callback=callback, tester=tester)
 
     def _handle_sub_answer(self, callback):
         ss = callback.data.split("_")
@@ -127,9 +117,8 @@ class BotHandler:
         if tester.last_question < ApplicationQuestion.objects.all().count():
             self._go_to_application(chat_id=callback.message.chat.id, tester=tester)
         else:
-            day = Day.objects.get(day=get_today())
-            send_new_day_message(self.bot, tester.chat_id, day.block)
-            self._send_next_file(callback=callback, tester=tester, day=day)
+            send_new_day_message(self.bot, tester.chat_id, tester.current_block)
+            self._send_next_file(callback=callback, tester=tester)
 
     def _go_to_application(self, chat_id, tester):
         if tester.name is None:
@@ -152,11 +141,6 @@ class BotHandler:
         audio_file_id = int(ss[1])
         value = int(ss[2])
 
-        days = Day.objects.filter(day=get_today())
-        if len(days) == 0:
-            self.bot.send_message(callback.message.chat.id, "Подождите, опрос еще не начался")
-            return
-        day = days[0]
 
         tg_id = callback.from_user.id
         testers = Tester.objects.filter(tg_id=tg_id)
@@ -170,27 +154,27 @@ class BotHandler:
                                   f'Вы уже проголосовали за это аудио')
             return
 
-        mark = Mark(tester=tester, audio_id=audio_file_id, value=value, day=day)
+        mark = Mark(tester=tester, audio_id=audio_file_id, value=value)
         mark.save()
 
         self.bot.send_message(callback.message.chat.id,
                               f'Ваша оценка принята')
 
-        self._send_next_file(callback=callback, tester=tester, day=day)
+        self._send_next_file(callback=callback, tester=tester)
 
-    def _send_next_file(self, callback, tester, day):
+    def _send_next_file(self, callback, tester):
         print("_send_next_file")
-        if Mark.objects.filter(tester=tester, day=day).count() >= AudioFiles.objects.filter(block=day.block).count():
+        if Mark.objects.filter(tester=tester, audio__block=tester.current_block).count() >= AudioFiles.objects.filter(block=tester.current_block).count():
             self.bot.send_message(callback.message.chat.id,
                                   f'Ваша ежедневная сессия оценки завершена. Спасибо за проделанную работу. 30 аудиофайлов успешно оценены. Ожидайте следующий набор файлов завтра. Желаем вам приятного вечера!')
             return
-        latest_mark = Mark.objects.filter(tester=tester).order_by('-id').first()
+        latest_mark = Mark.objects.filter(tester=tester, audio__block=tester.current_block).order_by('-id').first()
         if latest_mark is None:
             latest_mark_audio_id = 0
         else:
             latest_mark_audio_id=latest_mark.audio.id
         print("latest_mark_id: "+str(latest_mark_audio_id))
-        next_audio = AudioFiles.objects.filter(id__gt=latest_mark_audio_id, block=day.block, active=True).order_by("name").first()
+        next_audio = AudioFiles.objects.filter(id__gt=latest_mark_audio_id, block=tester.current_block, active=True).order_by("name").first()
 
         if next_audio is None:
             self.bot.send_message(callback.message.chat.id,
@@ -214,5 +198,5 @@ class BotHandler:
         btn = types.InlineKeyboardButton("5", callback_data='setvalue_' + str(next_audio.id) + '_5')
         markup.row(btn)
         self.bot.send_message(callback.message.chat.id,
-                              f'День '+str(day.block)+', исполнитель '+str(next_audio.number)+". Пожалуйста, поставье оценку.",
+                              f'День '+str(tester.current_block)+', исполнитель '+str(next_audio.number)+". Пожалуйста, поставье оценку.",
                               reply_markup=markup)

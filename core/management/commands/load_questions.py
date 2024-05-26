@@ -37,8 +37,8 @@ class Command(BaseCommand):
         q = ApplicationQuestion(n=5, text="Вы поете на публике?")
         q.save()
         ApplicationAnswer.objects.create(text="Выступаю или выступал(а) на сцене", application_questions=q)
-        ApplicationAnswer.objects.create(text="Выкладываю или выкладывал(а) видео с пением в соцсетях", application_questions=q)
-        ApplicationAnswer.objects.create(text="Пою иногда для друзей или гостей, в караоке", application_questions=q)
+        ApplicationAnswer.objects.create(text="Выступаю или выступал(а) на сцене", application_questions=q)
+        ApplicationAnswer.objects.create(text="Пою в караоке", application_questions=q)
         ApplicationAnswer.objects.create(text="Нет, не пою", application_questions=q)
 
         q = ApplicationQuestion(n=6, text="Как, по мнению Ваших друзей, знакомых, близких, Вы поете?")
@@ -75,6 +75,6 @@ class Command(BaseCommand):
         q = ApplicationQuestion(n=11, text="Что для Вас музыка?")
         q.save()
         ApplicationAnswer.objects.create(text="Часть моей профессии", application_questions=q)
-        ApplicationAnswer.objects.create(text="Мое хобби, которому уделяю много времени", application_questions=q)
+        ApplicationAnswer.objects.create(text="Хобби, которому уделяю много времени", application_questions=q)
         ApplicationAnswer.objects.create(text="Способ выражения чувств и эмоций", application_questions=q)
         ApplicationAnswer.objects.create(text="Просто музыка", application_questions=q)
