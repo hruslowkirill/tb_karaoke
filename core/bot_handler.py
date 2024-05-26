@@ -137,6 +137,7 @@ class BotHandler:
                               next_question.text, reply_markup=markup)
 
     def _handle_make(self, callback):
+        print("_handle_make")
         ss = callback.data.split("_")
         audio_file_id = int(ss[1])
         value = int(ss[2])
@@ -177,7 +178,8 @@ class BotHandler:
         next_audio = AudioFiles.objects.filter(id__gt=latest_mark_audio_id, block=tester.current_block, active=True).order_by("name").first()
 
         if next_audio is None:
-            self.bot.send_message(callback.message.chat.id,
+            if Mark.objects.filter(tester=tester).count() >= AudioFiles.objects.all().count():
+                self.bot.send_message(callback.message.chat.id,
                                   f'Вы успешно завершили все 300 оценок. Спасибо за ваш вклад в это важное исследовательское дело. Мы искренне ценим ваш труд!')
             return
 
