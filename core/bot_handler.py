@@ -167,7 +167,7 @@ class BotHandler:
         print("_send_next_file")
         if Mark.objects.filter(tester=tester, audio__block=tester.current_block).count() >= AudioFiles.objects.filter(block=tester.current_block).count():
             self.bot.send_message(callback.message.chat.id,
-                                  f'Ваша ежедневная сессия оценки завершена. Спасибо за проделанную работу. 30 аудиофайлов успешно оценены. Ожидайте следующий набор файлов завтра. Желаем вам приятного вечера!')
+                                  f'Ваша ежедневная сессия оценки завершена. Спасибо за проделанную работу. Завтра вы получите следующие 30 песен.')
             return
         latest_mark = Mark.objects.filter(tester=tester, audio__block=tester.current_block).order_by('-id').first()
         if latest_mark is None:

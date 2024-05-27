@@ -37,7 +37,7 @@ class Command(BaseCommand):
         q = ApplicationQuestion(n=5, text="Вы поете на публике?")
         q.save()
         ApplicationAnswer.objects.create(text="Выступаю или выступал(а) на сцене", application_questions=q)
-        ApplicationAnswer.objects.create(text="Выступаю или выступал(а) на сцене", application_questions=q)
+        ApplicationAnswer.objects.create(text="Выкладывал видео с пением в соцсетях", application_questions=q)
         ApplicationAnswer.objects.create(text="Пою в караоке", application_questions=q)
         ApplicationAnswer.objects.create(text="Нет, не пою", application_questions=q)
 
