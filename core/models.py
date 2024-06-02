@@ -60,7 +60,7 @@ class Tester(TimeStampedModel):
     current_block = models.IntegerField(default=1)
 
     def __str__(self):
-        return str(self.username)
+        return str(self.username)+" "+str(self.tg_id)
 
 
 class Mark(TimeStampedModel):
@@ -71,5 +71,6 @@ class Mark(TimeStampedModel):
 
     tester = models.ForeignKey(Tester, null=False, on_delete=models.RESTRICT, related_name="marks")
     audio = models.ForeignKey(AudioFiles, null=False, on_delete=models.RESTRICT, related_name="marks")
+    audio_message_id = models.PositiveIntegerField(default=0)
     value = models.PositiveSmallIntegerField()
 

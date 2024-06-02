@@ -141,6 +141,9 @@ class BotHandler:
         ss = callback.data.split("_")
         audio_file_id = int(ss[1])
         value = int(ss[2])
+        audio_message_id = 0
+        if len(ss)>3:
+            audio_message_id = int(ss[3])
 
 
         tg_id = callback.from_user.id
@@ -160,7 +163,8 @@ class BotHandler:
 
         self.bot.send_message(callback.message.chat.id,
                               f'Ваша оценка принята')
-
+        if audio_message_id > 0:
+            self.bot.delete_message(callback.message.chat.id, audio_message_id)
         self._send_next_file(callback=callback, tester=tester)
 
     def _send_next_file(self, callback, tester):
@@ -186,18 +190,19 @@ class BotHandler:
         #self.bot.send_message(callback.message.chat.id,
         #                      f'Ждите файл')
 
-        self.bot.send_audio(chat_id=callback.message.chat.id, audio=open(next_audio.file.path, 'rb'))
+        mess = self.bot.send_audio(chat_id=callback.message.chat.id, audio=open(next_audio.file.path, 'rb'))
+        message_id = mess.message_id
 
         markup = types.InlineKeyboardMarkup()
-        btn = types.InlineKeyboardButton("1", callback_data='setvalue_' + str(next_audio.id) + '_1')
+        btn = types.InlineKeyboardButton("1", callback_data='setvalue_' + str(next_audio.id) + '_1_'+str(message_id))
         markup.row(btn)
-        btn = types.InlineKeyboardButton("2", callback_data='setvalue_' + str(next_audio.id) + '_2')
+        btn = types.InlineKeyboardButton("2", callback_data='setvalue_' + str(next_audio.id) + '_2_'+str(message_id))
         markup.row(btn)
-        btn = types.InlineKeyboardButton("3", callback_data='setvalue_' + str(next_audio.id) + '_3')
+        btn = types.InlineKeyboardButton("3", callback_data='setvalue_' + str(next_audio.id) + '_3_'+str(message_id))
         markup.row(btn)
-        btn = types.InlineKeyboardButton("4", callback_data='setvalue_' + str(next_audio.id) + '_4')
+        btn = types.InlineKeyboardButton("4", callback_data='setvalue_' + str(next_audio.id) + '_4_'+str(message_id))
         markup.row(btn)
-        btn = types.InlineKeyboardButton("5", callback_data='setvalue_' + str(next_audio.id) + '_5')
+        btn = types.InlineKeyboardButton("5", callback_data='setvalue_' + str(next_audio.id) + '_5_'+str(message_id))
         markup.row(btn)
         self.bot.send_message(callback.message.chat.id,
                               f'День '+str(tester.current_block)+', исполнитель '+str(next_audio.number)+". Пожалуйста, поставье оценку.",
