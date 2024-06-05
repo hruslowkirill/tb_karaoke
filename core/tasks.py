@@ -24,7 +24,7 @@ def start_new_day():
         begin_button = types.InlineKeyboardButton('Начать', callback_data='begin')
         markup.row(begin_button)
         bot.send_message(tester.chat_id,
-                         f'Сегодня '+str(tester.current_block)+' день оценки. Для вас подготовлено 30 исполнителей\n'+introduction_text2, reply_markup=markup)
+                         f'Сегодня '+str(tester.current_block)+' день оценки. Для вас подготовлено 30 исполнителей\n'+introduction_text2, parse_mode="Markdown", reply_markup=markup)
 
 @shared_task
 def test_tasks():

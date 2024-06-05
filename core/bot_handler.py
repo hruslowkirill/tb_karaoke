@@ -52,11 +52,9 @@ class BotHandler:
         markup = types.InlineKeyboardMarkup()
         begin_button = types.InlineKeyboardButton('Начать', callback_data='begin')
         markup.row(begin_button)
-
         self.bot.send_message(message.chat.id,
                               introduction_text,
                               reply_markup=markup, parse_mode="Markdown")
-
     def handle_text(self, message):
         tg_id = message.from_user.id
         testers = Tester.objects.filter(tg_id=tg_id)
@@ -205,5 +203,5 @@ class BotHandler:
         btn = types.InlineKeyboardButton("5", callback_data='setvalue_' + str(next_audio.id) + '_5_'+str(message_id))
         markup.row(btn)
         self.bot.send_message(callback.message.chat.id,
-                              f'День '+str(tester.current_block)+', исполнитель '+str(next_audio.number)+". Пожалуйста, поставье оценку.",
+                              f'День '+str(tester.current_block)+', исполнитель '+str(next_audio.number)+". Пожалуйста, поставьте оценку.",
                               reply_markup=markup)
