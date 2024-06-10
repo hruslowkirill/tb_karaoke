@@ -6,6 +6,7 @@ from math import sqrt
 from django.conf import settings
 
 from core.bot_handler import BotHandler
+from core.models import ErrorLog
 
 bot = telebot.TeleBot(settings.TG_BOT)
 bot_handler = BotHandler(bot)
@@ -24,9 +25,6 @@ def after_text(message):
     bot_handler.handle_text(message)
 
 
-def after_text_2(message):
-   print('введённый пользователем номер телефона на шаге "смс":', message.text)
-
 @bot.callback_query_handler(func=lambda callback: True)
 def main(callback):
     print("callback")
@@ -43,5 +41,7 @@ class Command(BaseCommand):
             try:
                 bot.polling(none_stop=True)
             except Exception as ex:
-                print(ex)
+                print("general exception: "+str(ex))
+                error_log = ErrorLog(type="general", description=str(ex))
+                error_log.save()
                 time.sleep(10)

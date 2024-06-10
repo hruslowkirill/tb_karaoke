@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 
-from core.models import AudioFiles, Tester, Mark, ApplicationQuestion, ApplicationAnswer
+from core.models import AudioFiles, Tester, Mark, ApplicationQuestion, ApplicationAnswer, ErrorLog
 
 from openpyxl import Workbook
 
@@ -67,9 +67,14 @@ class TesterAdmin(admin.ModelAdmin):
         wb.save(response)
         return response
 
+
 @admin.register(Mark)
 class MarkAdmin(admin.ModelAdmin):
-    list_display = ["created", "tester", "audio", "value"]
+    search_fields = ("tester__name", "tester__tg_id", "tester__username")
+    list_display = ["time_seconds", "tester", "audio", "value"]
+
+    def time_seconds(self, obj):
+        return obj.created.strftime("%d %b %Y %H:%M:%S")
 
 
 @admin.register(ApplicationQuestion)
@@ -79,3 +84,7 @@ class ApplicationQuestionAdmin(admin.ModelAdmin):
 @admin.register(ApplicationAnswer)
 class ApplicationAnswerAdmin(admin.ModelAdmin):
     list_display = ["created", "text", "application_questions"]
+
+@admin.register(ErrorLog)
+class ErrorLogAdmin(admin.ModelAdmin):
+    list_display = ["created", "tester", "audio", "type", "description", "success_resend"]

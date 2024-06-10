@@ -60,7 +60,7 @@ class Tester(TimeStampedModel):
     current_block = models.IntegerField(default=1)
 
     def __str__(self):
-        return str(self.username)+" "+str(self.tg_id)
+        return str(self.username)+" "+str(self.tg_id)+" "+str(self.name)
 
 
 class Mark(TimeStampedModel):
@@ -73,4 +73,19 @@ class Mark(TimeStampedModel):
     audio = models.ForeignKey(AudioFiles, null=False, on_delete=models.RESTRICT, related_name="marks")
     audio_message_id = models.PositiveIntegerField(default=0)
     value = models.PositiveSmallIntegerField()
+
+
+class ErrorLog(TimeStampedModel):
+    class Meta:
+        verbose_name = "Лог ошибки"
+        verbose_name_plural = "Логи ошибки"
+        ordering = ["-created"]
+
+    tester = models.ForeignKey(Tester, null=True, on_delete=models.RESTRICT, related_name="error_logs")
+    audio = models.ForeignKey(AudioFiles, null=True, on_delete=models.RESTRICT, related_name="error_logs")
+    type = models.CharField(max_length=32, null=False)
+    description = models.TextField(null=False)
+    second_description = models.TextField(null=True)
+    success_resend = models.BooleanField(default=False)
+
 
