@@ -8,6 +8,7 @@ from django.conf import settings
 from core.bot_handler import BotHandler
 from core.models import ErrorLog
 
+telebot.apihelper.SESSION_TIME_TO_LIVE = 60 * 5
 bot = telebot.TeleBot(settings.TG_BOT)
 bot_handler = BotHandler(bot)
 
