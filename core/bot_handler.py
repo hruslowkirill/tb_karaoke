@@ -161,11 +161,12 @@ class BotHandler:
                                       f'Вы уже проголосовали за это аудио')
                 return
 
+            self.bot.send_message(callback.message.chat.id,
+                                  f'Ваша оценка принята')
+
             mark = Mark(tester=tester, audio_id=audio_file_id, value=value)
             mark.save()
 
-            self.bot.send_message(callback.message.chat.id,
-                                  f'Ваша оценка принята')
             if audio_message_id > 0:
                 try:
                     self.bot.delete_message(callback.message.chat.id, audio_message_id)
