@@ -164,8 +164,14 @@ class BotHandler:
             self.bot.send_message(callback.message.chat.id,
                                   f'Ваша оценка принята')
 
-            mark = Mark(tester=tester, audio_id=audio_file_id, value=value)
-            mark.save()
+            try:
+                mark = Mark(tester=tester, audio_id=audio_file_id, value=value)
+                mark.save()
+            except Exception as exception:
+                print("error: "+str(exception))
+                self.bot.send_message(callback.message.chat.id,
+                                      f'Вы уже проголосовали за это аудио')
+                return
 
             if audio_message_id > 0:
                 try:

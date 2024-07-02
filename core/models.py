@@ -68,6 +68,7 @@ class Mark(TimeStampedModel):
         verbose_name = "Оценка"
         verbose_name_plural = "Оценки"
         ordering = ["-created"]
+        unique_together = ('tester', 'audio',)
 
     tester = models.ForeignKey(Tester, null=False, on_delete=models.RESTRICT, related_name="marks")
     audio = models.ForeignKey(AudioFiles, null=False, on_delete=models.RESTRICT, related_name="marks")
