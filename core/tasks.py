@@ -19,6 +19,8 @@ def start_new_day():
             continue
         if Mark.objects.filter(tester=tester).count() >= AudioFiles.objects.all().count():
             continue
+        if tester.current_block >= 10:
+            continue
         tester.current_block += 1
         tester.save()
         markup = types.InlineKeyboardMarkup()
