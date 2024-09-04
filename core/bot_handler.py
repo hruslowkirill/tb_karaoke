@@ -190,7 +190,7 @@ class BotHandler:
             if Mark.objects.filter(tester=tester, audio__block=tester.current_block).count() >= AudioFiles.objects.filter(block=tester.current_block).count():
                 if Mark.objects.filter(tester=tester).count() >= AudioFiles.objects.all().count():
                     self.bot.send_message(chat_id,
-                                      f'Вы успешно завершили все 300 оценок. Спасибо за ваш вклад в это важное исследовательское дело. Мы искренне ценим ваш труд!')
+                                      f'Вы успешно завершили все 300 оценок. Спасибо за ваш вклад в это важное исследовательское дело. Мы искренне ценим ваш труд! \n\nОтправьте скриншот этого сообщения менеджеру для получения оплаты.')
                     return
                 self.bot.send_message(chat_id,
                                       f'Ваша ежедневная сессия оценки завершена. Спасибо за проделанную работу. Завтра вы получите следующие 30 песен.')
