@@ -21,13 +21,19 @@ def start_new_day():
             continue
         if tester.current_block >= 10:
             continue
-        tester.current_block += 1
-        tester.save()
-        markup = types.InlineKeyboardMarkup()
-        begin_button = types.InlineKeyboardButton('Начать', callback_data='begin')
-        markup.row(begin_button)
-        bot.send_message(tester.chat_id,
-                         f'Сегодня '+str(tester.current_block)+' день оценки. Для вас подготовлено 30 исполнителей\n'+introduction_text2, parse_mode="Markdown", reply_markup=markup)
+        try:
+            tester.current_block += 1
+            markup = types.InlineKeyboardMarkup()
+            begin_button = types.InlineKeyboardButton('Начать', callback_data='begin')
+            markup.row(begin_button)
+            bot.send_message(tester.chat_id,
+                             f'Сегодня '+str(tester.current_block)+' день оценки. Для вас подготовлено 30 исполнителей\n'+introduction_text2, parse_mode="Markdown", reply_markup=markup)
+            tester.save()
+            print(str(tester.id)+" is done")
+        except Exception as ex:
+            print("Something bad hapened")
+            print("tester_id: "+str(tester.id))
+            print(str(ex))
         time.sleep(6)
 
 @shared_task
